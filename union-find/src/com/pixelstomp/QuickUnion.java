@@ -9,8 +9,6 @@ public class QuickUnion {
 
     int[] id;
     int[] size;
-    static final String INSTRUCTIONS = "Press J to join, B to bulk-join, or F to find. Or press Q to exit.";
-
     public QuickUnion(int count) {
         id = new int[count];
         size = new int[count];
@@ -43,12 +41,6 @@ public class QuickUnion {
 
     }
 
-    public void joinBulk(int[][] joined) {
-        for (int i = 0; i < joined.length; i++) {
-            join(joined[i][0], joined[i][1]);
-        }
-    }
-
     public boolean find(int p, int q) {
         // Finds the root of the nodes and checks to see if they are the same
         return root(p) == root(q);
@@ -59,6 +51,18 @@ public class QuickUnion {
             return j;
         } else {
             return root(id[j]);
+        }
+    }
+
+    public int getSize(int k) {
+        return size[k];
+    }
+
+    static final String INSTRUCTIONS = "Press J to join, B to bulk-join, or F to find. Or press Q to exit.";
+
+    public void joinBulk(int[][] joined) {
+        for (int i = 0; i < joined.length; i++) {
+            join(joined[i][0], joined[i][1]);
         }
     }
 
