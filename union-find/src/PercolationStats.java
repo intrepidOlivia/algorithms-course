@@ -3,7 +3,7 @@
  */
 
 import edu.princeton.cs.algs4.StdStats;
-import static edu.princeton.cs.algs4.StdRandom.uniform;
+import edu.princeton.cs.algs4.StdRandom;
 
 public class PercolationStats {
 
@@ -42,7 +42,7 @@ public class PercolationStats {
     }
 
     private int getRandomInt(int n) {
-        return uniform(1, n + 1);
+        return StdRandom.uniform(1, n + 1);
     }
 
     /**
