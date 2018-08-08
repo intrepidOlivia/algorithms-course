@@ -10,7 +10,7 @@ Practice code for the Algorithms course at coursera.org
 Some preliminary thought suggests that while traversing the log, the timestamp may be delivered as soon as the size of any given tree is equal to n.
 
 Some assumptions:
-* id[] already exists in a class called Network and is populated with each node acting as its own root.
+* id[] already exists in a union-find class called Network and is populated with each node acting as its own root. Network operates as a Weighted-Quick-Union class.
 * size[] already exists, with a length of n, and each value of the array is 1.
 
 public long earliestFullConnection(Network network, File log) {
