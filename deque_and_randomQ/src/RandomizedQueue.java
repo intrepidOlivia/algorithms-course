@@ -6,9 +6,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     Item[] items;   // The array to store the items
     int count;      // keeps track of how many items are stored
-    int cursor;     // keeps track of where next to add an item (replaces any empty spot from dequeue)
-    CursorStack cursors;    // keeps track of where empty spaces are in the array
-    int maxIndex;    // Keeps track of the highest index, for iteration purposes.
 
     /**
      * Constructs an empty randomized queue
@@ -16,8 +13,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public RandomizedQueue() {
         items = (Item[]) new Object[10];
         count = 0;
-        cursors = new CursorStack();
-        cursors.push(0);
     }
 
     /**
@@ -44,17 +39,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
 
         // Adds item to the queue (where?)
-        items[cursors.pop()] = item;
-
+        items[count] = item;
         count++;
+
         if (count > items.length / 2) {
             resize(items.length * 2);
-        }
-
-        // Replace cursor at the top of the list
-        if (cursors.isEmpty()) {
-            maxIndex = count - 1;
-            cursors.push(count);
         }
     }
 
@@ -67,14 +56,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             throw new NoSuchElementException("The queue is empty.");
         }
 
-        int index = StdRandom.uniform(0, items.length);
-        if (items[index] == null) {
-            return dequeue();
-        }
+        int index = StdRandom.uniform(0, count);
 
         Item item = items[index];
-        items[index] = null;
-        cursors.push(index);
+        items[index] = items[count - 1];
+        items[count - 1] = null;
         count--;
         if (count < items.length / 4) {
             resize(items.length / 2);
@@ -101,7 +87,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     public Iterator<Item> iterator() {
         return new RandQueueIterator();
-    }         // return an independent iterator over items in random order
+    }
 
     private void resize(int capacity) {
         Item[] copy = (Item[]) new Object[capacity];
@@ -117,65 +103,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         int current = 0;
 
         public boolean hasNext() {
-            if (current > maxIndex) {
-                return false;
-            }
-
-            if (items[current] == null) {
-                current++;
-                return hasNext();
-            }
-
-            return true;
+            return items[current] != null;
         }
 
         public Item next() {
-            Item item = items[current];
-            current++;
-            if (item == null) {
-                return next();
-            }
-            return item;
+            return items[current++];
         }
 
         public void remove() {
             throw new UnsupportedOperationException();
-        }
-    }
-
-    private class CursorStack {
-        Node first;
-        int size = 0;
-
-        void push(int item) {
-            if (first == null) {
-                first = new Node(item);
-            } else {
-                Node oldItem = first;
-                first = new Node(item);
-                first.next = oldItem;
-            }
-            size++;
-        }
-
-        int pop() {
-            int item = first.item;
-            first = first.next;
-            size--;
-            return item;
-        }
-
-        boolean isEmpty() {
-            return size == 0;
-        }
-
-        private class Node {
-            int item;
-            Node next;
-
-            Node(int item) {
-                this.item = item;
-            }
         }
     }
 
