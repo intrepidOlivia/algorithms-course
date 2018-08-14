@@ -6,7 +6,7 @@ import com.pixelstomp.Timer;
 public class QuickFind {
 
     int[] id;
-    String INSTRUCTIONS = "Press J to join or F to find. Or press Q to exit.";
+    String INSTRUCTIONS = "Press J to join or F to connected. Or press Q to exit.";
     Timer timer = new Timer();
 
     public QuickFind(int count) {

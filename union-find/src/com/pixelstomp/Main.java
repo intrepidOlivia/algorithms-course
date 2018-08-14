@@ -1,7 +1,6 @@
 package com.pixelstomp;
 
 import java.util.Scanner;
-import com.pixelstomp.UnionFind;
 
 public class Main {
 
@@ -10,7 +9,7 @@ public class Main {
 
     Scanner scanner = new Scanner(System.in);
 
-    startQuickUnion(scanner);
+    startSuccessor(scanner);
 
     }
 
@@ -30,6 +29,15 @@ public class Main {
         qu = new QuickUnion(scanner.nextInt());
 
         qu.doQuickUnion(scanner);
+    }
+
+    private static void startSuccessor(Scanner scanner) {
+        Successor s;
+
+        System.out.println("Now evaluating Succession algorithm. Please enter the number of nodes you would like to include in the set.");
+        s = new Successor(scanner.nextInt());
+
+        s.doSuccessor(scanner);
     }
 
 }
