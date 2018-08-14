@@ -4,6 +4,10 @@
  */
 public class Permutation {
     public static void main(String[] args) {
-        System.out.println("Hello world");
+        int k = Integer.parseInt(args[0]);
+        while (!StdIn.isEmpty()) {
+            String input = StdIn.readString();
+            System.out.println("Input: " + input);
+        }
     }
 }

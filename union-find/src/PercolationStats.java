@@ -25,7 +25,9 @@ public class PercolationStats {
         siteCount = n * n;
         numTrials = trials;
 
+        Stopwatch stopwatch = new Stopwatch();
         doTrials(n, trials);
+        System.out.println("Elapsed time for trials with " + n + "-size grid and " + trials + " trials: " + stopwatch.elapsedTime() + " seconds.");
     }
 
     private void doTrials(int n, int trials) {
