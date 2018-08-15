@@ -4,8 +4,8 @@ import edu.princeton.cs.algs4.StdRandom;
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
 
-    Item[] items;   // The array to store the items
-    int count;      // keeps track of how many items are stored
+    private Item[] items;   // The array to store the items
+    private int count;      // keeps track of how many items are stored
 
     /**
      * Constructs an empty randomized queue

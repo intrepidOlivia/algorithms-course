@@ -9,11 +9,6 @@ public class Permutation {
         int k = Integer.parseInt(args[0]);
         RandomizedQueue<String> q = new RandomizedQueue<>();
 
-//        String[] strings = StdIn.readAllStrings();
-//        for (String s : strings) {
-//            System.out.println(s);
-//        }
-
         while (!StdIn.isEmpty() && StdIn.hasNextLine()) {
             q.enqueue(StdIn.readString());
         }

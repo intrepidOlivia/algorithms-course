@@ -9,14 +9,7 @@ public class Deque<Item> implements Iterable<Item> {
 
     private Node first; // For nodes pushed onto the First end of the deque
     private Node last;  // For nodes pushed onto the Last end of the deque
-    private int count = 0;
-
-    /**
-     * // constructs an empty deque
-     */
-    public Deque() {
-
-    }
+    private int count = 0;  // Keeps track of the number of stored items
 
     /**
      * @return true if the deque is empty
@@ -139,7 +132,7 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     private class Node<Item> {
-        Item item;
+        Item item;      // Item to be stored in the Node
         Node next;      // Next means: item toward the First end from this node.
         Node previous;  // Previous means: item toward the Last end from this node.
 
