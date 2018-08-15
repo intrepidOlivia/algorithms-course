@@ -7,9 +7,20 @@ import edu.princeton.cs.algs4.StdIn;
 public class Permutation {
     public static void main(String[] args) {
         int k = Integer.parseInt(args[0]);
-        while (!StdIn.isEmpty()) {
-            String input = StdIn.readString();
-            System.out.println("Input: " + input);
+        RandomizedQueue<String> q = new RandomizedQueue<>();
+
+//        String[] strings = StdIn.readAllStrings();
+//        for (String s : strings) {
+//            System.out.println(s);
+//        }
+
+        while (!StdIn.isEmpty() && StdIn.hasNextLine()) {
+            q.enqueue(StdIn.readString());
+        }
+
+        int size = q.size();
+        for (int i = 0; i < size; i++) {
+            System.out.println(q.dequeue());
         }
     }
 }
