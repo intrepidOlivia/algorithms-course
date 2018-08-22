@@ -35,10 +35,10 @@ public class Deque<Item> implements Iterable<Item> {
         }
 
         if (first == null) {
-            first = new Node<>(item, null, null);
+            first = new Node(item, null, null);
             last = first;
         } else {
-            Node newFirst = new Node<>(item, null, first);
+            Node newFirst = new Node(item, null, first);
             first.changeNext(newFirst);
             first = newFirst;
         }
@@ -55,10 +55,10 @@ public class Deque<Item> implements Iterable<Item> {
         }
 
         if (last == null) {
-            last = new Node<>(item, null, null);
+            last = new Node(item, null, null);
             first = last;
         } else {
-            Node newLast = new Node<>(item, last, null);
+            Node newLast = new Node(item, last, null);
             last.changePrevious(newLast);
             last = newLast;
         }
@@ -82,7 +82,7 @@ public class Deque<Item> implements Iterable<Item> {
             first = null;
         }
         count--;
-        return (Item) retrieved.item;
+        return retrieved.item;
     }
 
     /**
@@ -101,7 +101,7 @@ public class Deque<Item> implements Iterable<Item> {
             last = null;
         }
         count--;
-        return (Item) retrieved.item;
+        return retrieved.item;
     }
 
     public Iterator<Item> iterator() {
@@ -121,7 +121,7 @@ public class Deque<Item> implements Iterable<Item> {
                 throw new NoSuchElementException();
             }
 
-            Item item = (Item) current.item;
+            Item item = current.item;
             current = current.previous;
             return item;
         }
@@ -131,7 +131,7 @@ public class Deque<Item> implements Iterable<Item> {
         }
     }
 
-    private class Node<Item> {
+    private class Node {
         Item item;      // Item to be stored in the Node
         Node next;      // Next means: item toward the First end from this node.
         Node previous;  // Previous means: item toward the Last end from this node.
