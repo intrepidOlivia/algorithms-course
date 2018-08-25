@@ -59,8 +59,22 @@ public class Point implements Comparable<Point> {
      * @return the slope between this point and the specified point
      */
     public double slopeTo(Point that) {
-        /* YOUR CODE HERE */
-        return 0.0;
+        double ypoint = that.y - this.y;
+        double xpoint = that.x - this.x;
+
+        if (xpoint == 0) {
+            if (ypoint == 0) {
+                return Double.NEGATIVE_INFINITY;
+            }
+
+            return 0;
+        }
+
+        if (ypoint == 0) {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        return ypoint / xpoint;
     }
 
     /**
@@ -98,13 +112,30 @@ public class Point implements Comparable<Point> {
      * @return the Comparator that defines this ordering on points
      */
     public Comparator<Point> slopeOrder() {
-        /* YOUR CODE HERE */
-        return new Comparator<Point>() {
-            @Override
-            public int compare(Point o1, Point o2) {
+        return new BySlope(this);
+    }
+
+    private class BySlope implements Comparator<Point> {
+        Point point;
+
+        BySlope(Point point) {
+            this.point = point;
+        }
+
+        public int compare(Point p1, Point p2) {
+            double slope1 = point.slopeTo(p1);
+            double slope2 = point.slopeTo(p2);
+
+            if (slope1 < slope2) {
+                return -1;
+            }
+
+            if (slope1 == slope2) {
                 return 0;
             }
-        };
+
+            return 1;
+        }
     }
 
 
@@ -124,11 +155,15 @@ public class Point implements Comparable<Point> {
      * Unit tests the Point data type.
      */
     public static void main(String[] args) {
-        Point thispoint = new Point(2, 3);
-        Point thatpoint = new Point(3, 3);
+        Point thispoint = new Point(4, 5);
+        Point thatpoint = new Point(3, 4);
 
         int compares = thispoint.compareTo(thatpoint);
+        double slope = thispoint.slopeTo(thatpoint);
 
         System.out.println("that point compared to this point: " + compares);
+        System.out.println("The slope between the two points: " + slope);
+
+
     }
 }
