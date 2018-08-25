@@ -1,12 +1,10 @@
 import edu.princeton.cs.algs4.Stack;
-
-import java.net.URL;
 import java.util.Arrays;
 
 // Finds whether points are collinear by testing if all slopes between four connected points are the same.
 public class BruteCollinearPoints {
 
-    Stack<LineSegment> lineStack = new Stack<>();
+    private Stack<LineSegment> lineStack = new Stack<>();
 
     /**
      * Finds all line segments containing four points
@@ -75,7 +73,7 @@ public class BruteCollinearPoints {
      * @param s collinear point
      * @return the line segment defined by the highest and lowest two points
      */
-    LineSegment getLineSegment(Point p, Point q, Point r, Point s) {
+    private LineSegment getLineSegment(Point p, Point q, Point r, Point s) {
         Point[] linePts = new Point[] {p, q, r, s};
         Arrays.sort(linePts);
         return new LineSegment(linePts[0], linePts[3]);
@@ -101,21 +99,4 @@ public class BruteCollinearPoints {
         return segments;
     }
 
-    public static void main(String[] args) {
-        // read the n points from a file
-        URL path = BruteCollinearPoints.class.getResource(args[0]);
-        In in = new In(args[0]);
-        int n = in.readInt();
-        Point[] points = new Point[n];
-        for (int i = 0; i < n; i++) {
-            int x = in.readInt();
-            int y = in.readInt();
-            points[i] = new Point(x, y);
-        }
-
-        // send the points to BruteForce
-        BruteCollinearPoints bf = new BruteCollinearPoints(points);
-
-        System.out.println("number of segments: " + bf.numberOfSegments());
-    }
 }

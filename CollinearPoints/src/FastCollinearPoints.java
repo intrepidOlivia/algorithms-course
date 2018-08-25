@@ -1,89 +1,116 @@
 import java.util.Arrays;
 import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.WeightedQuickUnionUF;
+import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.In;
 
 // Finds whether four or more points are collinear by comparing the angle of each of them to one point p.
 public class FastCollinearPoints {
 
-    Stack<LineSegment> lineStack = new Stack<>();
+    private Stack<LineSegment> lineStack = new Stack<>();
+    private WeightedQuickUnionUF pointNetwork;
 
     /**
      * finds all line segments containing 4 or more points
      * @param points
      */
     public FastCollinearPoints(Point[] points) {
+        pointNetwork = new WeightedQuickUnionUF(points.length);
+
         for (int p = 0; p < points.length; p++) {
-            // find slope of each other point in the array
-            Point thisPoint = points[p];
 
-            Point[] otherPoints = new Point[points.length - 1];
-            int j = 0;
-            for (int i = 0; i < otherPoints.length; i++) {
-                if (i != p) {
-                    otherPoints[i] = points[j];
-                } else {
-                    otherPoints[i] = points[++j];
+            Point origin = points[p];
+            // check q
+            for (int q = p + 1; q < points.length; q++) {
+
+                // if q is already part of the same line segment as p, don't go further
+                if (pointNetwork.connected(p, q)) {
+                    continue;
                 }
-                j++;
-            }
 
-            // sort points by slopes with p (use Comparator?)
-            Arrays.sort(otherPoints, points[p].slopeOrder());
+                // establish slope with p
+                double qSlope = origin.slopeTo(points[q]);
 
-            // navigate sorted array by checking to see if adjacent slopes are fidelitous with each other
-            for (int n = 0; n < otherPoints.length - 2;) {
-                System.out.println("checking at n = " + n);
-                Stack<Point> collinear = new Stack<>();
+                //check next point
+                for (int r = q + 1; r < points.length; r++) {
 
-                // check next two points for equality
-                double qSlope = thisPoint.slopeTo(otherPoints[n]);
-                double rSlope = thisPoint.slopeTo(otherPoints[n + 1]);
-                double sSlope = thisPoint.slopeTo(otherPoints[n + 2]);
+                    // establish slope with p
+                    double rSlope = origin.slopeTo(points[r]);
 
-                if (qSlope == rSlope && rSlope == sSlope) {
-                    System.out.println("Found start of collinear line segment.");
-                    collinear.push(thisPoint);
-                    collinear.push(otherPoints[n]);
-                    collinear.push(otherPoints[n + 1]);
-                    collinear.push(otherPoints[n + 2]);
+                    // if it is the start of a collinear segment:
+                    if (rSlope == qSlope) {
 
-                    boolean adjacent = true;
-                    int m = n + 3;
-                    while (adjacent && m < otherPoints.length) {
-                        double slope = thisPoint.slopeTo(otherPoints[m]);
-                        if (slope == qSlope) {
-                            collinear.push(otherPoints[m]);
-                        } else {
-                            adjacent = false;
+                        // check next point
+                        for (int s = r + 1; s < points.length; s++) {
+
+                            // establish slope with p
+                            double sSlope = origin.slopeTo(points[s]);
+
+                            if (sSlope == qSlope) {
+                                // collinear reached; start gathering all points
+                                startCollinear(p, q, r, s, qSlope, points);
+                                break;
+                            }
                         }
-                        m++;
+                        break;
                     }
-
-                    n = m;
-                    System.out.println("Collinear segment ended, n now equals " + n);
-
-                    // get line segment from collinear points
-                    Point[] linePoints = new Point[collinear.size()];
-                    int i = 0;
-                    for (Point pt : collinear) {
-                        linePoints[i++] = pt;
-                    }
-                    lineStack.push(getLineSegment(linePoints));
-                    System.out.println("Collinear line segment found with " + linePoints.length + " points.");
-                } else {
-                    n++;
                 }
             }
         }
     }
 
+    private void startCollinear(int p, int q, int r, int s, double slope, Point[] points) {
+        Stack<Point> collinear = new Stack<>();
+
+        collinear.push(points[p]);
+        collinear.push(points[q]);
+        collinear.push(points[r]);
+        collinear.push(points[s]);
+
+        pointNetwork.union(p, q);
+        pointNetwork.union(p, r);
+        pointNetwork.union(p, s);
+
+        // find any remaining points on the line
+        collinear = continueLine(points, p, s + 1, slope, collinear);
+
+        Point[] linePoints = new Point[collinear.size()];
+        int i = 0;
+        for (Point point : collinear) {
+            linePoints[i++] = point;
+        }
+        lineStack.push(getLineSegment(linePoints));
+    }
+
+    /**
+     *
+     * @param points    The collection of points
+     * @param index     Index of the next point to start checking slope equivalence from
+     * @param qSlope    The slope to compare to
+     */
+    private Stack<Point> continueLine(Point[] points, int p, int index, double qSlope, Stack<Point> collinear) {
+        for (int i = index; i < points.length; i++) {
+            // find slope with p
+            double iSlope = points[p].slopeTo(points[i]);
+
+            if (iSlope == qSlope) {
+                // gather point with collinear
+                pointNetwork.union(p, i);
+                collinear.push(points[i]);
+                return continueLine(points, p, i + 1, qSlope, collinear);
+            }
+        }
+        return collinear;
+    }
+
     /**
      * Creates a line segment from the provided points, using the highest and lowest points as definers.
-     * @param points An array of collinear points
+     * @param linePoints An array of collinear points
      * @return the line segment defined by the highest and lowest two points
      */
-    LineSegment getLineSegment(Point[] points) {
-        Arrays.sort(points);
-        return new LineSegment(points[0], points[points.length - 1]);
+    private LineSegment getLineSegment(Point[] linePoints) {
+        Arrays.sort(linePoints);
+        return new LineSegment(linePoints[0], linePoints[linePoints.length - 1]);
     }
 
     /**
@@ -103,34 +130,5 @@ public class FastCollinearPoints {
             segments[i++] = segment;
         }
         return segments;
-    }
-
-    public static void main(String[] args) {
-        // read the n points from a file
-        In in = new In(args[0]);
-        int n = in.readInt();
-        Point[] points = new Point[n];
-        for (int i = 0; i < n; i++) {
-            int x = in.readInt();
-            int y = in.readInt();
-            points[i] = new Point(x, y);
-        }
-
-        // draw the points
-        StdDraw.enableDoubleBuffering();
-        StdDraw.setXscale(0, 32768);
-        StdDraw.setYscale(0, 32768);
-        for (Point p : points) {
-            p.draw();
-        }
-        StdDraw.show();
-
-        // print and draw the line segments
-        FastCollinearPoints collinear = new FastCollinearPoints(points);
-        for (LineSegment segment : collinear.segments()) {
-            StdOut.println(segment);
-            segment.draw();
-        }
-        StdDraw.show();
     }
 }
