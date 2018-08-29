@@ -3,3 +3,6 @@
 union-find/out/production/
 union-find/src/percolation/
 deque_and_randomQ/out/
+puzzle/puzzle_testing/
+out/production/puzzle/Board.class
+out/
