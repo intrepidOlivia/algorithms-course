@@ -1,5 +1,8 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdRandom;
+
+import java.util.Arrays;
 
 public class Board {
 
@@ -14,6 +17,14 @@ public class Board {
     public Board(int[][] blocks) {
         n = blocks.length;
         board = blocks;
+
+        System.out.println("New board:");
+        for (int i = 0; i < blocks.length; i++) {
+            for (int col : blocks[i]) {
+                System.out.print(" " + col + " ");
+            }
+            System.out.println();
+        }
     }
 
     /**
@@ -44,15 +55,53 @@ public class Board {
      * @return true if board is the goal board
      */
     public boolean isGoal() {
+        int checkValue = 1;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                if (board[i][j] != checkValue++) {
+                    return checkValue == (n * n) + 1;
+                }
+            }
+        }
+
         return false;
     }
 
     /**
      *
-     * @return a board that is obtained by exchanging any pair of blocks
+     * @return a board that is obtained by exchanging any pair of blocks (not the empty block)
      */
     public Board twin() {
-        return null;
+        int sourceVal, targetVal;
+        int[] sourceCoords, targetCoords;
+
+        // select random source (not zero)
+        sourceCoords = getRandomCoord();
+        sourceVal = board[sourceCoords[0]][sourceCoords[1]];
+
+        // select random target (not zero)
+        targetCoords = getRandomCoord();
+        targetVal = board[targetCoords[0]][targetCoords[1]];
+
+        if (sourceVal == targetVal) {
+            return twin();
+        }
+
+        // use the swap method on them
+        return new Board(swap(board, sourceCoords, targetCoords));
+    }
+
+    /**
+     * @return a random coordinate on the board that is not 0
+     */
+    int[] getRandomCoord() {
+        int i, j;
+        i = StdRandom.uniform(0, n);
+        j = StdRandom.uniform(0, n);
+        if (board[i][j] == 0) {
+            return getRandomCoord();
+        }
+        return new int[]{i, j};
     }
 
     /**
@@ -86,18 +135,44 @@ public class Board {
 
                     if (board[iCoord][jCoord] == 0) {
                         System.out.println("0 was found at these coordinates: " + iCoord + ", " + jCoord);
-                        // TODO: simulate the move to 0 and push onto stack
+                        nextBoards.push(new Board(swap(board, new int[]{i, j}, new int[]{iCoord, jCoord})));
                     }
                 }
-
             }
         }
 
-        // if adjacent is a 0, create a new Board, swapping the [i, j] with the 0.
-
-        // push the new board onto the stack
-
         return nextBoards;
+    }
+
+    /**
+     *
+     * @param board The blocks on which this swap is taking place
+     * @param swapSource The block to swap with target, [row, col]
+     * @param swapTarget The block to be swapped with source, [row, col]
+     * @return a copy of board with the specified elements swapped
+     */
+    int[][] swap(int[][] board, int[] swapSource, int[] swapTarget) {
+        int[][] swapped = new int[board.length][board.length];
+
+        int sourceRow = swapSource[0];
+        int sourceCol = swapSource[1];
+
+        int targetRow = swapTarget[0];
+        int targetCol = swapTarget[1];
+
+        int sourceValue = board[sourceRow][sourceCol];
+        int targetValue = board[targetRow][targetCol];  // usually 0
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                swapped[i][j] = board[i][j];
+            }
+        }
+
+        swapped[sourceRow][sourceCol] = targetValue;
+        swapped[targetRow][targetCol] = sourceValue;
+
+        return swapped;
     }
 
     // NOTE: This method originally came from Permutation.java and is not written well (although it works)
@@ -170,6 +245,9 @@ public class Board {
             }
         }
         Board b = new Board(tiles);
-        b.getNextBoards();
+//        b.getNextBoards();
+        System.out.println("Is board goal? " + b.isGoal());
+        System.out.println("Get a twin!");
+        Board t = b.twin();
     }
 }
