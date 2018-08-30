@@ -17,14 +17,6 @@ public class Board {
     public Board(int[][] blocks) {
         n = blocks.length;
         board = blocks;
-
-        System.out.println("New board:");
-        for (int i = 0; i < blocks.length; i++) {
-            for (int col : blocks[i]) {
-                System.out.print(" " + col + " ");
-            }
-            System.out.println();
-        }
     }
 
     /**
@@ -39,7 +31,21 @@ public class Board {
      * @return number of blocks out of place
      */
     public int hamming() {
-        return 0;
+
+        int expected = 1;
+        int misplaced = 0;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                int val = board[i][j];
+                if (val != expected++) {
+                    if (val != 0) {
+                        misplaced++;
+                    }
+                }
+            }
+        }
+
+        return misplaced;
     }
 
     /**
@@ -47,7 +53,40 @@ public class Board {
      * @return sum of Manhattan distances between blocks and goal
      */
     public int manhattan() {
+        int operant = 1;
+        int sum = 0;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                int val = board[i][j];
+                if (val != operant) {
+                    sum += getManhattan(i, j, operant++);
+                }
+            }
+        }
+
+        return sum;
+    }
+
+    private int getManhattan(int i, int j, int operant) {
+        int expected = 1;
+        for (int m = 0; m < board.length; m++) {
+            for (int n = 0; n < board.length; n++) {
+                if (operant == expected++) {
+                    int vert = unsigned(m - i);
+                    int horiz = unsigned(n - j);
+                    return vert + horiz;
+                }
+            }
+        }
         return 0;
+    }
+
+    private int unsigned(int i) {
+        if (i < 0) {
+            return i + (-2 * i);
+        } else {
+            return i;
+        }
     }
 
     /**
@@ -94,7 +133,7 @@ public class Board {
     /**
      * @return a random coordinate on the board that is not 0
      */
-    int[] getRandomCoord() {
+    private int[] getRandomCoord() {
         int i, j;
         i = StdRandom.uniform(0, n);
         j = StdRandom.uniform(0, n);
@@ -110,14 +149,18 @@ public class Board {
      * @return true if board is equal to y
      */
     public boolean equals(Object y) {
-        return false;
+        if (y == this) { return true; }
+        if (y == null) { return false; }
+        if (y.getClass() != this.getClass()) { return false; }
+        Board that = (Board) y;
+        return this.toString().equals(that.toString());
     }
 
     /**
      * @return all neighboring boards
      */
     public Iterable<Board> neighbors() {
-        return iterableBoards;
+        return getNextBoards();
     }
 
     private Stack<Board> getNextBoards() {
@@ -151,7 +194,7 @@ public class Board {
      * @param swapTarget The block to be swapped with source, [row, col]
      * @return a copy of board with the specified elements swapped
      */
-    int[][] swap(int[][] board, int[] swapSource, int[] swapTarget) {
+    private int[][] swap(int[][] board, int[] swapSource, int[] swapTarget) {
         int[][] swapped = new int[board.length][board.length];
 
         int sourceRow = swapSource[0];
@@ -231,7 +274,15 @@ public class Board {
      * @return a string representation of this board
      */
     public String toString() {
-        return "";
+        StringBuilder s = new StringBuilder();
+        s.append(n + "\n");
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                s.append(String.format("%2d ", board[i][j]));
+            }
+            s.append("\n");
+        }
+        return s.toString();
     }
 
     public static void main(String[] args) {
@@ -245,9 +296,10 @@ public class Board {
             }
         }
         Board b = new Board(tiles);
-//        b.getNextBoards();
-        System.out.println("Is board goal? " + b.isGoal());
-        System.out.println("Get a twin!");
-        Board t = b.twin();
+        System.out.println(b.toString());
+
+        System.out.println("Hamming level of board? " + b.hamming());
+        System.out.println("Manhattan level of board? " + b.manhattan());
+
     }
 }
