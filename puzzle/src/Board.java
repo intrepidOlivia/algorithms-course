@@ -2,13 +2,11 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdRandom;
 
-import java.util.Arrays;
-
 public class Board {
 
-    int n;
-    int[][] board;
-    Stack<Board> iterableBoards;
+    private final int n;
+    private final int[][] board;
+    private Board twin;
 
     /**
      * constructs a board from an n-by-n array of blocks (where blocks[i][j] = block in row i, column j)
@@ -16,7 +14,13 @@ public class Board {
      */
     public Board(int[][] blocks) {
         n = blocks.length;
-        board = blocks;
+        board = new int[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                board[i][j] = blocks[i][j];
+            }
+        }
     }
 
     /**
@@ -37,11 +41,12 @@ public class Board {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
                 int val = board[i][j];
-                if (val != expected++) {
+                if (val != expected) {
                     if (val != 0) {
                         misplaced++;
                     }
                 }
+                expected++;
             }
         }
 
@@ -59,23 +64,25 @@ public class Board {
             for (int j = 0; j < board.length; j++) {
                 int val = board[i][j];
                 if (val != operant) {
-                    sum += getManhattan(i, j, operant++);
+                    sum += getManhattan(i, j, val);
                 }
+                operant++;
             }
         }
 
         return sum;
     }
 
-    private int getManhattan(int i, int j, int operant) {
+    private int getManhattan(int i, int j, int val) {
         int expected = 1;
         for (int m = 0; m < board.length; m++) {
-            for (int n = 0; n < board.length; n++) {
-                if (operant == expected++) {
+            for (int x = 0; x < board.length; x++) {
+                if (val == expected) {
                     int vert = unsigned(m - i);
-                    int horiz = unsigned(n - j);
+                    int horiz = unsigned(x - j);
                     return vert + horiz;
                 }
+                expected++;
             }
         }
         return 0;
@@ -97,9 +104,10 @@ public class Board {
         int checkValue = 1;
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
-                if (board[i][j] != checkValue++) {
-                    return checkValue == (n * n) + 1;
+                if (board[i][j] != checkValue) {
+                    return checkValue + 1 == (n * n) + 1;
                 }
+                checkValue++;
             }
         }
 
@@ -111,16 +119,30 @@ public class Board {
      * @return a board that is obtained by exchanging any pair of blocks (not the empty block)
      */
     public Board twin() {
+        if (twin == null) {
+            twin = getTwin();
+        }
+
+        return twin;
+    }
+
+    private Board getTwin() {
         int sourceVal, targetVal;
         int[] sourceCoords, targetCoords;
 
         // select random source (not zero)
         sourceCoords = getRandomCoord();
         sourceVal = board[sourceCoords[0]][sourceCoords[1]];
+        if (sourceVal == 0) {
+            return twin();
+        }
 
         // select random target (not zero)
         targetCoords = getRandomCoord();
         targetVal = board[targetCoords[0]][targetCoords[1]];
+        if (targetVal == 0) {
+            return twin();
+        }
 
         if (sourceVal == targetVal) {
             return twin();
@@ -152,8 +174,22 @@ public class Board {
         if (y == this) { return true; }
         if (y == null) { return false; }
         if (y.getClass() != this.getClass()) { return false; }
+
         Board that = (Board) y;
-        return this.toString().equals(that.toString());
+
+        if (this.n != that.n) {
+            return false;
+        }
+
+        for (int i = 0; i < this.n; i++) {
+            for (int j = 0; j < this.n; j++) {
+                if (this.board[i][j] != that.board[i][j]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -177,7 +213,6 @@ public class Board {
                     int jCoord = adjacent[a][1];
 
                     if (board[iCoord][jCoord] == 0) {
-                        System.out.println("0 was found at these coordinates: " + iCoord + ", " + jCoord);
                         nextBoards.push(new Board(swap(board, new int[]{i, j}, new int[]{iCoord, jCoord})));
                     }
                 }
@@ -189,13 +224,13 @@ public class Board {
 
     /**
      *
-     * @param board The blocks on which this swap is taking place
+     * @param aBoard The blocks on which this swap is taking place
      * @param swapSource The block to swap with target, [row, col]
      * @param swapTarget The block to be swapped with source, [row, col]
      * @return a copy of board with the specified elements swapped
      */
-    private int[][] swap(int[][] board, int[] swapSource, int[] swapTarget) {
-        int[][] swapped = new int[board.length][board.length];
+    private int[][] swap(int[][] aBoard, int[] swapSource, int[] swapTarget) {
+        int[][] swapped = new int[aBoard.length][aBoard.length];
 
         int sourceRow = swapSource[0];
         int sourceCol = swapSource[1];
@@ -203,12 +238,12 @@ public class Board {
         int targetRow = swapTarget[0];
         int targetCol = swapTarget[1];
 
-        int sourceValue = board[sourceRow][sourceCol];
-        int targetValue = board[targetRow][targetCol];  // usually 0
+        int sourceValue = aBoard[sourceRow][sourceCol];
+        int targetValue = aBoard[targetRow][targetCol];  // usually 0
 
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board.length; j++) {
-                swapped[i][j] = board[i][j];
+        for (int i = 0; i < aBoard.length; i++) {
+            for (int j = 0; j < aBoard.length; j++) {
+                swapped[i][j] = aBoard[i][j];
             }
         }
 
@@ -298,8 +333,7 @@ public class Board {
         Board b = new Board(tiles);
         System.out.println(b.toString());
 
-        System.out.println("Hamming level of board? " + b.hamming());
-        System.out.println("Manhattan level of board? " + b.manhattan());
+        System.out.println("Manhattan value: " + b.manhattan());
 
     }
 }
