@@ -6,7 +6,7 @@ import edu.princeton.cs.algs4.StdDraw;
 
 public class PointSET {
 
-    SET<Point2D> pSet;
+    private final SET<Point2D> pSet;
 
     /**
      * Constructs an empty set of points
@@ -29,7 +29,7 @@ public class PointSET {
     }
 
     public boolean contains(Point2D p) {
-        if (p == null ) { throw new IllegalArgumentException(); }
+        if (p == null) { throw new IllegalArgumentException(); }
         return pSet.contains(p);
     }
 
@@ -69,8 +69,10 @@ public class PointSET {
         double distance = 0;
         Point2D nearest = null;
         for (Point2D compare : pSet) {
-            if (p.equals(compare)) { continue; }
-            double cDistance = p.distanceTo(compare);
+            if (p.equals(compare)) {
+                return compare;
+            }
+            double cDistance = p.distanceSquaredTo(compare);
             if (distance == 0 || cDistance < distance) {
                 distance = cDistance;
                 nearest = compare;
@@ -81,10 +83,21 @@ public class PointSET {
 
 
     public static void main(String[] args) {
-        StdDraw.setPenRadius(0.05);
-        StdDraw.point(0, 0);
-        StdDraw.point(1, 0);
-        StdDraw.point(0, 1);
-        StdDraw.point (1, 1);
+//        StdDraw.setCanvasSize(800, 800);
+//        StdDraw.setPenRadius(0.05);
+//        StdDraw.point(0, 0);
+//        StdDraw.point(1, 0);
+//        StdDraw.point(0, 1);
+//        StdDraw.point (1, 1);
+//        Point2D point1 = new Point2D(.1, .2);
+//        StdDraw.point(point1.x(), point1.y());
+//        Point2D point2 = new Point2D(.1, .2);
+//        StdDraw.point(point2.x(), point1.y());
+//        Point2D point3 = new Point2D(.2, .1);
+//        StdDraw.point(point3.x(), point1.y());
+//        Point2D point4 = new Point2D(.2, .2);
+//        StdDraw.point(point4.x(), point1.y());
+//        Point2D point5 = new Point2D(0, .1);
+//        StdDraw.point(point5.x(), point1.y());
     }
 }
