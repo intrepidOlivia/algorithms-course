@@ -49,26 +49,29 @@ public class WordNet {
             Synset s = new Synset(Integer.parseInt(synset[0]), synset[1], synset[2]);
 
             // Get hypernyms and add to graph
-            String[] hyperSet = hyperLines[i].split(",");
-            for (int j = 1; j < hyperSet.length; j++) {
+            if (i < hyperLines.length) {
+                String[] hyperSet = hyperLines[i].split(",");
+                int n = Integer.parseInt(hyperSet[0]);
+                for (int j = 1; j < hyperSet.length; j++) {
 
-                int h = Integer.parseInt(hyperSet[j]);
+                    int h = Integer.parseInt(hyperSet[j]);
 
-                s.addHypernym(h);
-                graph.addEdge(i, h);
+                    s.addHypernym(h);
+                    graph.addEdge(n, h);
+                }
             }
 
             synsets[i] = s;
         }
 
         // Check that the graph is a rooted synset tree
-        boolean rooted = true;
-        for (int r : graph.adj(38003)) {
-            rooted = false;
-        }
-        if (!rooted) {
-            throw new IllegalArgumentException("Bad hypernyms input");
-        }
+//        boolean rooted = true;
+//        for (int r : graph.adj(38003)) {
+//            rooted = false;
+//        }
+//        if (!rooted) {
+//            throw new IllegalArgumentException("Bad hypernyms input");
+//        }
     }
 
     // returns all WordNet nouns
@@ -99,7 +102,10 @@ public class WordNet {
         }
 
         SAP spath = new SAP(graph);
-        return spath.length(nouns.get(nounA), nouns.get(nounB));
+        int ancestor = spath.ancestor(nouns.get(nounA), nouns.get(nounB));
+        int length = spath.length(nouns.get(nounA), nouns.get(nounB));
+
+        return length;
     }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
@@ -116,5 +122,17 @@ public class WordNet {
         SAP spath = new SAP(graph);
         int ancestor = spath.ancestor(nouns.get(nounA), nouns.get(nounB));
         return synsets[ancestor].getNoun();
+    }
+
+    public static void main(String[] args) {
+//        WordNet net = new WordNet(args[0], args[1]);
+//        while (!StdIn.isEmpty()) {
+//            String v = StdIn.readLine();
+//            String w = StdIn.readLine();
+//            int length = net.distance(v, w);
+////            int length   = sap.length(v, w);
+////            int ancestor = sap.ancestor(v, w);
+//            StdOut.printf("distance = %d\n", length);
+//        }
     }
 }

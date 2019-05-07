@@ -2,6 +2,8 @@ import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.Stack;
 
+import java.util.Iterator;
+
 /**
  * This class performs breadth-first-search in a digraph to ultimately find the shortest ancestral path between two vertices.
  */
@@ -19,10 +21,10 @@ public class BreadthFirstWords {
     private int[] distToS;      // distTo[v] = length of shortest s->v path
     private int[] distToV;
 
-    private boolean ancestorFound = false;
+    private boolean sapFound = false;
     private int commonAncestor = -1;
 
-    private int[] shortestPath;
+    private int sap = Integer.MAX_VALUE;
 
     private Queue<Integer> sQueue;
     private Queue<Integer> vQueue;
@@ -38,9 +40,6 @@ public class BreadthFirstWords {
         int count = g.V();
 
         this.graph = g;
-
-//        this.s = s;
-//        this.v = v;
 
         markedS = new boolean[count];
         markedV = new boolean[count];
@@ -87,16 +86,20 @@ public class BreadthFirstWords {
     }
 
     private void bfSearch() {
-        while (!ancestorFound && (!sQueue.isEmpty() || !vQueue.isEmpty())) {
-            int sNext, vNext;
+//        int shortestLength = Integer.MAX_VALUE;
+        int currentCommon = -1;
+
+        while ((!sQueue.isEmpty() || !vQueue.isEmpty())) {
+            int sNext;
+            boolean found = false;
 
             // Check next S path for common ancestor
             if (!sQueue.isEmpty()) {
                 sNext = sQueue.dequeue();
                 if (markedV[sNext]) {
-                    ancestorFound = true;
-                    commonAncestor = sNext;
-                } else {
+                    found = true;
+                    currentCommon = sNext;
+                }
                     // standard bfs for S
                     for (int sAdj : graph.adj(sNext)) {
                         if (!markedS[sAdj]) {
@@ -105,17 +108,29 @@ public class BreadthFirstWords {
                             distToS[sAdj] = distToS[sNext] + 1;
                             sQueue.enqueue(sAdj);
                         }
+
+                }
+
+                if (found) {
+                    int newLength = doShortestPath(currentCommon);
+                    if (newLength > sap) {
+                        sapFound = true;
+                    } else {
+                        commonAncestor = currentCommon;
+                        sap = newLength;
                     }
                 }
             }
+
+            int vNext;
 
             // Check next V path for common ancestor
             if (!vQueue.isEmpty()) {
                 vNext = vQueue.dequeue();
                 if (markedS[vNext]) {
-                    ancestorFound = true;
-                    commonAncestor = vNext;
-                } else {
+                    found = true;
+                    currentCommon = vNext;
+                }
                     // standard bfs for V
                     for (int vAdj : graph.adj(vNext)) {
                         if (!markedV[vAdj]) {
@@ -124,12 +139,18 @@ public class BreadthFirstWords {
                             distToV[vAdj] = distToV[vNext] + 1;
                             vQueue.enqueue(vAdj);
                         }
+
+                }
+
+                if (found) {
+                    int newLength = doShortestPath(currentCommon);
+                    if (newLength > sap) {
+                        sapFound = true;
+                    } else {
+                        commonAncestor = currentCommon;
+                        sap = newLength;
                     }
                 }
-            }
-
-            if (ancestorFound) {
-                doShortestPath();
             }
         }
     }
@@ -138,13 +159,36 @@ public class BreadthFirstWords {
         sQueue = new Queue<>();
         vQueue = new Queue<>();
 
+        Iterator sGroup = sourcesS.iterator();
+        Iterator vGroup = sourcesV.iterator();
+
+        while (sGroup.hasNext()) {
+            if (sGroup.next() == null) {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        while (vGroup.hasNext()) {
+            if (vGroup.next() == null) {
+                throw new IllegalArgumentException();
+            }
+        }
+
         for (int s : sourcesS) {
+            if (s < 0 || s >= G.V()) {
+                throw new IllegalArgumentException();
+            }
+
             markedS[s] = true;
             distToS[s] = 0;
             sQueue.enqueue(s);
         }
 
         for (int v : sourcesV) {
+            if (v < 0 || v >= G.V()) {
+                throw new IllegalArgumentException();
+            }
+
             markedV[v] = true;
             distToV[v] = 0;
             vQueue.enqueue(v);
@@ -153,34 +197,36 @@ public class BreadthFirstWords {
         bfSearch();
     }
 
-    private void doShortestPath() {
+    private int doShortestPath(int common) {
         // count path backward for each vertex
         Stack<Integer> pathToS = new Stack<>();
         Stack<Integer> pathToV = new Stack<>();
+        int[] shortest;
 
         // make path to s
         int i;
-        for (i = commonAncestor; distToS[i] > 0; i = edgeToS[i]) {
+        for (i = common; distToS[i] > 0; i = edgeToS[i]) {
             pathToS.push(i);
         }
         pathToS.push(i);
 
         // make path to v
         int j;
-        for (j = commonAncestor; distToV[j] > 0; j = edgeToV[j]) {
+        for (j = common; distToV[j] > 0; j = edgeToV[j]) {
             pathToV.push(j);
         }
         pathToV.push(j);
 
         // concatenate the two
-        shortestPath = new int[pathToS.size() + pathToV.size() - 2];
+        shortest = new int[pathToS.size() + pathToV.size() - 2];
+        return shortest.length;
     }
 
     public int getCommonAncestor() {
         return commonAncestor;
     }
 
-    public int[] getShortestPath() {
-        return shortestPath;
+    public int shortestAncestralPath() {
+        return sap;
     }
 }
